@@ -42,13 +42,6 @@ The architecture of the fitness chatbot project can be broken down into the foll
 ### High-Level Architecture Diagram
 
 Below is a high-level architecture diagram illustrating the flow of data and interactions within the system:
-### High-Level Architecture Diagram
-
-Below is a high-level architecture diagram illustrating the flow of data and interactions within the system:
-
-### High-Level Architecture Diagram
-
-Below is a high-level architecture diagram illustrating the flow of data and interactions within the system:
 
 ```plaintext
 +--------------+       +----------------+       +----------------+       +----------------+       
