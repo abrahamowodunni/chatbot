@@ -1,9 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 from src.helper import download_hugging_face_embeddings
-from langchain.vectorstores import Pinecone
-from pinecone import Pinecone as pc
+from pinecone import Pinecone
 from langchain.prompts import PromptTemplate
-from langchain.llms import CTransformers
+from langchain_community.llms import CTransformers
 from langchain.chains import RetrievalQA
 from dotenv import load_dotenv
 from src.prompt import *
@@ -13,19 +12,29 @@ app = Flask(__name__)
 
 load_dotenv()
 
+
 PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
-pine = pc(api_key= PINECONE_API_KEY)
-
-
+pc = Pinecone(api_key= PINECONE_API_KEY)
+index = pc.Index("fitnesschatbot")
+print(index.describe_index_stats())
 
 embeddings = download_hugging_face_embeddings()
 
 #Initializing the Pinecone
-index_name="fitnesschatbot"
+index_name= "fitnesschatbot"
+
+from langchain_pinecone import PineconeVectorStore
+text_field = "text" 
 
 #Loading the index
-docsearch=Pinecone.from_existing_index(index_name, embeddings)
+docsearch=PineconeVectorStore.from_existing_index(index_name= index_name, embedding=embeddings, text_key= text_field)
 
+retriever = docsearch.as_retriever()
+
+# docsearch.as_retriever()
+# query = "best chest workout?"
+# doc = docsearch.similarity_search(query)
+# print(doc)
 
 PROMPT=PromptTemplate(template=prompt_template, input_variables=["context", "question"])
 
@@ -40,9 +49,10 @@ llm=CTransformers(model="model/llama-2-7b-chat.ggmlv3.q4_0.bin",
 qa=RetrievalQA.from_chain_type(
     llm=llm, 
     chain_type="stuff", 
-    retriever=docsearch.as_retriever(search_kwargs={'k': 3}),
-    return_source_documents=True, 
-    chain_type_kwargs=chain_type_kwargs)
+    retriever=retriever, 
+    chain_type_kwargs=chain_type_kwargs
+    )
+
 
 
 
