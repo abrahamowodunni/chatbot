@@ -3,6 +3,7 @@ from src.helper import download_hugging_face_embeddings
 from pinecone import Pinecone
 from langchain.prompts import PromptTemplate
 from langchain_community.llms import CTransformers
+from langchain_community.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from dotenv import load_dotenv
 from src.prompt import *
@@ -40,10 +41,16 @@ PROMPT=PromptTemplate(template=prompt_template, input_variables=["context", "que
 
 chain_type_kwargs={"prompt": PROMPT}
 
-llm=CTransformers(model="model/llama-2-7b-chat.ggmlv3.q4_0.bin",
-                  model_type="llama",
-                  config={'max_new_tokens':512,
-                          'temperature':0.8})
+key = os.getenv("OPENAI_API_KEY")
+
+llm = ChatOpenAI(openai_api_key = key,
+                 model_name = "gpt-3.5-turbo", 
+                 temperature = 0.7)
+
+# llm=CTransformers(model="model/llama-2-7b-chat.ggmlv3.q4_0.bin",
+#                   model_type="llama",
+#                   config={'max_new_tokens':512,
+#                           'temperature':0.8})
 
 
 qa=RetrievalQA.from_chain_type(
